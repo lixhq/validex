@@ -21,9 +21,8 @@ defmodule Validex do
     Enum.flat_map(expanded_schema,
              fn {attribute, rules} when is_list(rules) ->
                value = Map.get(data, attribute, :__validex_missing__)
-               actual_type = get_type(value)
                Enum.flat_map(rules, fn {rule_kind, rule_spec} ->
-                 validate(rule_kind, attribute, rule_spec, actual_type, value)
+                 validate(rule_kind, attribute, rule_spec, value)
                end)
 
              end
@@ -81,21 +80,21 @@ defmodule Validex do
     {attribute, Keyword.put_new(rule_set, :presence, true)}
   end
 
-  defp validate(:presence, _, false, _, _), do: []
+  defp validate(:presence, _, false, _), do: []
 
-  defp validate(:presence, attribute, true, _, :__validex_missing__) do
+  defp validate(:presence, attribute, true, :__validex_missing__) do
     [{:error, attribute, :presence, "#{attribute} is a required attribute but was absent"}]
   end
 
-  defp validate(:presence, attribute, true, _, _), do: [{:ok, attribute, :presence}]
+  defp validate(:presence, attribute, true, _), do: [{:ok, attribute, :presence}]
 
-  defp validate(:nested, _, _, _, :__validex_missing__), do: []
+  defp validate(:nested, _, _, :__validex_missing__), do: []
 
-  defp validate(:nested, _, _, actual_type, _) when actual_type != :map do
+  defp validate(:nested, _, _, value) when not is_map(value) do
     []
   end
 
-  defp validate(:nested, attribute, map, :map, value) do
+  defp validate(:nested, attribute, map, value) when is_map(value) do
     Validex.verify(value, Keyword.new(map))
     |> Enum.map(fn
       {:ok, nested_attribute, validator} when is_atom(nested_attribute)->
@@ -109,10 +108,10 @@ defmodule Validex do
     end)
   end
 
+  defp validate(:type, _, _, :__validex_missing__), do: []
 
-  defp validate(:type, _, _, _, :__validex_missing__), do: []
-
-  defp validate(:type, attribute, expected_type, actual_type, _) do
+  defp validate(:type, attribute, expected_type, value) do
+    actual_type = get_type(value)
     if expected_type != actual_type do
       [{:error, attribute, :type, "#{attribute} should be #{expected_type} but was #{actual_type}"}]
     else
@@ -120,7 +119,7 @@ defmodule Validex do
     end
   end
 
-  defp validate(rule_kind, attribute, rule_spec, _, _) do
+  defp validate(rule_kind, attribute, rule_spec, _) do
     [{:error, attribute, :__validex__unknown_validator__, "#{attribute} has unknown validator #{rule_kind} with spec #{inspect rule_spec}"}]
   end
 end
