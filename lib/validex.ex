@@ -1,4 +1,5 @@
 defmodule Validex do
+  :wa
   @moduledoc """
   Documentation for Validex.
   """
@@ -13,6 +14,7 @@ defmodule Validex do
 
   """
   def verify(data, schema) when is_map(data) and is_list(schema) do
+    validators = Validex.Validator.load_all()
     expanded_schema = Enum.map(schema,
                                fn {attribute, spec} ->
                                  expand_rule(attribute, spec)
@@ -22,7 +24,7 @@ defmodule Validex do
              fn {attribute, rules} when is_list(rules) ->
                value = Map.get(data, attribute, :__validex_missing__)
                Enum.flat_map(rules, fn {rule_kind, rule_spec} ->
-                 validator = find_validator(rule_kind)
+                 validator = find_validator(validators, rule_kind)
                  validator.validate(rule_kind, attribute, rule_spec, value)
                end)
 
@@ -76,12 +78,10 @@ defmodule Validex do
     {attribute, Keyword.put_new(rule_set, :presence, true)}
   end
 
-  defp find_validator(rule_kind) do
-    case rule_kind do
-      :presence -> Validex.Validators.Presence
-      :type -> Validex.Validators.Type
-      :nested -> Validex.Validators.Nested
-      _ -> Validex.Validators.Unknown
+  defp find_validator(validators, rule_kind) do
+    case Enum.find(validators, &(&1.rule_kind() == rule_kind)) do
+      nil -> Validex.Validators.Unknown
+      validator -> validator
     end
   end
 end
