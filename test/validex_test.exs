@@ -97,4 +97,10 @@ defmodule ValidexTest do
     )
   end
 
+  test "unknown validators are errors" do
+    assert [
+      {:error, :name, :__validex__unknown_validator__, "name has unknown validator wtfbbq with spec :roflcopter"}
+    ] = Validex.errors(%{ name: "simon" }, [name: [wtfbbq: :roflcopter]])
+  end
+
 end
