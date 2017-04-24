@@ -12,7 +12,7 @@ false = Validex.valid?(data, schema)
 
 [
   {error, :age, :type, "age should be integer but was atom" },
-	{:error, :sex, :presence, "sex is a required attribute but was absent"}
+  {:error, :sex, :presence, "sex is a required attribute but was absent"}
 ] = Validex.errors(data, schema)
 ```
 
