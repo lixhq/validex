@@ -14,8 +14,8 @@ defmodule Validex do
   """
   def verify(data, schema) when is_map(data) and is_list(schema) do
     expanded_schema = Enum.map(schema,
-                               fn {attribute, shorthand} ->
-                                 expand_rule(attribute, shorthand)
+                               fn {attribute, spec} ->
+                                 expand_rule(attribute, spec)
                                end)
 
     Enum.flat_map(expanded_schema,
@@ -73,6 +73,9 @@ defmodule Validex do
   end
 
   defp expand_rule(attribute, rule_set) when is_list(rule_set) do
+    if Keyword.has_key?(rule_set, :nested) do
+      rule_set = Keyword.put_new(rule_set, :type, get_type(Keyword.fetch!(rule_set, :nested)))
+    end
     {attribute, Keyword.put_new(rule_set, :presence, true)}
   end
 
@@ -85,6 +88,10 @@ defmodule Validex do
   defp validate(:presence, attribute, true, _, _), do: [{:ok, attribute, :presence}]
 
   defp validate(:nested, _, _, _, :__validex_missing__), do: []
+
+  defp validate(:nested, attribute, expected_type, actual_type, value) when actual_type != :map do
+    [] #validate(:type, attribute, get_type(expected_type), actual_type, value)
+  end
 
   defp validate(:nested, attribute, map, :map, value) do
     Validex.verify(value, Keyword.new(map))
@@ -99,6 +106,7 @@ defmodule Validex do
         {response, [attribute | attribute_path], validator, msg}
     end)
   end
+
 
   defp validate(:type, _, _, _, :__validex_missing__), do: []
 

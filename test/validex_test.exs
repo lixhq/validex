@@ -78,10 +78,22 @@ defmodule ValidexTest do
     )
   end
 
-  test "nested attributes can also be optional" do
-    assert [] = Validex.verify(
-      %{ address: %{ } },
-      [address: [presence: false, nested: %{ country: [presence: false] }]]
+  test "required nesting attributes have implicit type" do
+    assert [
+      {:ok, :address, :presence},
+      {:error, :address, :type, "address should be map but was integer"}
+    ] = Validex.verify(
+        %{ address: 5 },
+        [address: %{ country: [presence: false] }]
+    )
+  end
+
+  test "optional nesting attributes have implicit type" do
+    assert [
+      {:error, :address, :type, "address should be map but was integer"}
+    ] = Validex.verify(
+        %{ address: 5 },
+        [address: [presence: false, nested: %{ country: [presence: false] }]]
     )
   end
 
