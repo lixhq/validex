@@ -22,7 +22,8 @@ defmodule Validex do
              fn {attribute, rules} when is_list(rules) ->
                value = Map.get(data, attribute, :__validex_missing__)
                Enum.flat_map(rules, fn {rule_kind, rule_spec} ->
-                 validate(rule_kind, attribute, rule_spec, value)
+                 validator = find_validator(rule_kind)
+                 validator.validate(rule_kind, attribute, rule_spec, value)
                end)
 
              end
@@ -75,46 +76,12 @@ defmodule Validex do
     {attribute, Keyword.put_new(rule_set, :presence, true)}
   end
 
-  defp validate(:presence, _, false, _), do: []
-
-  defp validate(:presence, attribute, true, :__validex_missing__) do
-    [{:error, attribute, :presence, "#{attribute} is a required attribute but was absent"}]
-  end
-
-  defp validate(:presence, attribute, true, _), do: [{:ok, attribute, :presence}]
-
-  defp validate(:nested, _, _, :__validex_missing__), do: []
-
-  defp validate(:nested, _, _, value) when not is_map(value) do
-    []
-  end
-
-  defp validate(:nested, attribute, map, value) when is_map(value) do
-    Validex.verify(value, Keyword.new(map))
-    |> Enum.map(fn
-      {:ok, nested_attribute, validator} when is_atom(nested_attribute)->
-        {:ok, [attribute, nested_attribute], validator}
-      {:ok, attribute_path, validator} when is_list(attribute_path) ->
-        {:ok, [attribute | attribute_path], validator}
-      {response, nested_attribute, validator, msg} when is_atom(nested_attribute) ->
-        {response, [attribute, nested_attribute], validator, msg}
-      {response, attribute_path, validator, msg} when is_list(attribute_path) ->
-        {response, [attribute | attribute_path], validator, msg}
-    end)
-  end
-
-  defp validate(:type, _, _, :__validex_missing__), do: []
-
-  defp validate(:type, attribute, expected_type, value) do
-    actual_type = Validex.Typer.type_of(value)
-    if expected_type != actual_type do
-      [{:error, attribute, :type, "#{attribute} should be #{expected_type} but was #{actual_type}"}]
-    else
-      [{:ok, attribute, :type}]
+  defp find_validator(rule_kind) do
+    case rule_kind do
+      :presence -> Validex.Validators.Presence
+      :type -> Validex.Validators.Type
+      :nested -> Validex.Validators.Nested
+      _ -> Validex.Validators.Unknown
     end
-  end
-
-  defp validate(rule_kind, attribute, rule_spec, _) do
-    [{:error, attribute, :__validex__unknown_validator__, "#{attribute} has unknown validator #{rule_kind} with spec #{inspect rule_spec}"}]
   end
 end
