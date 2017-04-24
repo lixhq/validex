@@ -1,6 +1,17 @@
 # Validex
 
-**TODO: Add description**
+Validex is a library for doing data validation in Elixir.
+
+## Examples
+
+```elixir
+schema = [name: :string, age: :integer]
+data = %{ name: "Simon", age: :ripe }
+
+false = Validex.valid?(data, schema)
+
+[{error, :age, :type, "age should be integer but was atom" }] = Validex.errors(data, schema)
+```
 
 ## Installation
 
@@ -12,6 +23,8 @@ def deps do
   [{:validex, "~> 0.1.0"}]
 end
 ```
+
+## Documentation
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
