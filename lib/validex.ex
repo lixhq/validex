@@ -1,5 +1,4 @@
 defmodule Validex do
-  :wa
   @moduledoc """
   Documentation for Validex.
   """
