@@ -5,12 +5,15 @@ Validex is a library for doing data validation in Elixir.
 ## Examples
 
 ```elixir
-schema = [name: :string, age: :integer]
+schema = [name: :string, age: :integer, sex: :atom]
 data = %{ name: "Simon", age: :ripe }
 
 false = Validex.valid?(data, schema)
 
-[{error, :age, :type, "age should be integer but was atom" }] = Validex.errors(data, schema)
+[
+  {error, :age, :type, "age should be integer but was atom" },
+	{:error, :sex, :presence, "sex is a required attribute but was absent"}
+] = Validex.errors(data, schema)
 ```
 
 ## Installation
