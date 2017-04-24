@@ -3,53 +3,86 @@ defmodule ValidexTest do
   doctest Validex
 
   test "string type is verified" do
-    schema = [name: [type: :string]]
-    data = %{ name: 455 }
-
-    assert [{:error, :name, :type, "name should be string but was integer"}] 
-           = Validex.errors(data, schema)
+    assert [{:error, :name, :type, "name should be string but was integer"}]
+           = Validex.errors(%{ name: 455 }, [name: [type: :string]])
   end
 
   test "integer type is verified" do
-    schema = [age: [type: :integer]]
-    data = %{ age: "15" }
-
     assert [{:error, :age, :type, "age should be integer but was string"}]
-           = Validex.errors(data, schema)
+           = Validex.errors(%{ age: "15" }, [age: [type: :integer]])
   end
 
   test "shorthand form works" do
-    schema = [age: :integer]
-    data = %{age: 15}
-    assert [{:ok, :age, :presence}, {:ok, :age, :type}] = Validex.verify(data, schema)
+    assert [{:ok, :age, :presence}, {:ok, :age, :type}] = Validex.verify(%{age: 15}, [age: :integer])
   end
 
   test "can mix shorthand and fullform" do
-    schema = [age: :integer, name: [type: :string]]
-    data = %{age: 15, name: 455}
-    assert [{:ok, :age, :presence}, {:ok, :age, :type}, {:ok, :name, :presence}, {:error, :name, :type, _}] = Validex.verify(data, schema)
+    assert [
+      {:ok, :age, :presence}, {:ok, :age, :type},
+      {:ok, :name, :presence}, {:error, :name, :type, _}]
+      = Validex.verify(%{age: 15, name: 455}, [age: :integer, name: [type: :string]])
   end
 
-  test "can mix shorthand and fullform when one is missing" do
-    schema = [age: :integer, name: [type: :string]]
-    data = %{age: 15}
-    assert [{:ok, :age, :presence}, {:ok, :age, :type}, {:error, :name, :presence, _}, {:not_applicable, :name, :type, _}] = Validex.verify(data, schema)
+  test "can mix shorthand and fullform when one is absent" do
+    assert [
+      {:ok, :age, :presence}, {:ok, :age, :type},
+      {:error, :name, :presence, _}]
+      = Validex.verify(%{age: 15}, [age: :integer, name: [type: :string]])
   end
 
   test "multiple properties are all verified" do
-    schema = [name: :string, age: :integer]
-    data = %{ age: "15", name: 755 }
     assert [{:error, :name, :type, "name should be string but was integer"},
             {:error, :age, :type, "age should be integer but was string"}]
-           = Validex.errors(data, schema)
-
+           = Validex.errors(%{ age: "15", name: 755 }, [name: :string, age: :integer])
   end
 
   test "properties are required by default" do
-    schema = [age: :integer]
-    data = %{}
-    assert [{:error, :age, :presence, "age is a required attribute but was missing"}]
-           = Validex.errors(data, schema)
+    assert [{:error, :age, :presence, "age is a required attribute but was absent"}]
+           = Validex.errors(%{}, [age: :integer])
+  end
+
+  test "optional properties are not required" do
+    assert [] = Validex.verify(%{}, [name: [presence: false]])
+  end
+
+  test "can verify attributes nested inside maps" do
+    assert [
+      {:ok, :address, :presence},
+      {:ok, :address, :type},
+        {:ok, [:address, :country], :presence},
+        {:ok, [:address, :country], :type},
+        {:ok, [:address, :country, :country_code], :presence},
+        {:ok, [:address, :country, :country_code], :type},
+        {:ok, [:address, :country, :iso_code], :presence},
+        {:ok, [:address, :country, :iso_code], :type},
+        {:error, [:address, :country, :name], :presence, _},
+        {:ok, [:address, :street_name], :presence},
+        {:ok, [:address, :street_name], :type},
+        {:ok, [:address, :zip_code], :presence},
+        {:ok, [:address, :zip_code], :type}
+    ] = Validex.verify(%{
+      address: %{
+        zip_code: 90210, street_name: "Rodeo Drive",
+        country: %{ iso_code: "US", country_code: 1 }
+      }
+    }, [address: %{
+         zip_code: :integer, street_name: :string,
+         country: %{ iso_code: :string, country_code: :integer, name: :string }
+    }])
+  end
+
+  test "required nested attributes of optional parent is only verified if parent is present" do
+    assert [] = Validex.verify(
+      %{},
+      [address: [presence: false, nested: %{ country: [presence: true, type: :string] }]]
+    )
+  end
+
+  test "nested attributes can also be optional" do
+    assert [] = Validex.verify(
+      %{ address: %{ } },
+      [address: [presence: false, nested: %{ country: [presence: false] }]]
+    )
   end
 
 end
