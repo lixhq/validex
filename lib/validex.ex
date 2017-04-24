@@ -58,11 +58,6 @@ defmodule Validex do
     errors(data, schema) == []
   end
 
-  defp get_type(:__validex_missing__), do: :__validex_missing__
-  defp get_type(value) when is_map(value), do: :map
-  defp get_type(value) when is_binary(value), do: :string
-  defp get_type(value) when is_integer(value), do: :integer
-
   defp expand_rule(attribute, map) when is_map(map) do
     {attribute, [presence: true, type: :map, nested: map] }
   end
@@ -73,7 +68,7 @@ defmodule Validex do
 
   defp expand_rule(attribute, rule_set) when is_list(rule_set) do
     rule_set = if Keyword.has_key?(rule_set, :nested) do
-      Keyword.put_new(rule_set, :type, get_type(Keyword.fetch!(rule_set, :nested)))
+      Keyword.put_new(rule_set, :type, Validex.Typer.type_of(Keyword.fetch!(rule_set, :nested)))
     else
       rule_set
     end
@@ -111,7 +106,7 @@ defmodule Validex do
   defp validate(:type, _, _, :__validex_missing__), do: []
 
   defp validate(:type, attribute, expected_type, value) do
-    actual_type = get_type(value)
+    actual_type = Validex.Typer.type_of(value)
     if expected_type != actual_type do
       [{:error, attribute, :type, "#{attribute} should be #{expected_type} but was #{actual_type}"}]
     else
