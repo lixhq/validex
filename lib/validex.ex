@@ -14,9 +14,10 @@ defmodule Validex do
   """
   def verify(data, schema) when is_map(data) and is_list(schema) do
     validators = Validex.Validator.load_all()
+    expanders = Validex.RuleExpander.load_all()
     expanded_schema = Enum.map(schema,
                                fn {attribute, spec} ->
-                                 expand_rule(attribute, spec)
+                                 {attribute, expand_rules(expanders, attribute, spec)}
                                end)
 
     Enum.flat_map(expanded_schema,
@@ -60,27 +61,26 @@ defmodule Validex do
     errors(data, schema) == []
   end
 
-  defp expand_rule(attribute, map) when is_map(map) do
-    {attribute, [presence: true, type: :map, nested: map] }
-  end
-
-  defp expand_rule(attribute, type) when type in [:string, :integer] do
-    {attribute, [presence: true, type: type]}
-  end
-
-  defp expand_rule(attribute, rule_set) when is_list(rule_set) do
-    rule_set = if Keyword.has_key?(rule_set, :nested) do
-      Keyword.put_new(rule_set, :type, Validex.Typer.type_of(Keyword.fetch!(rule_set, :nested)))
-    else
-      rule_set
-    end
-    {attribute, Keyword.put_new(rule_set, :presence, true)}
-  end
-
   defp find_validator(validators, rule_kind) do
     case Enum.find(validators, &(&1.rule_kind() == rule_kind)) do
       nil -> Validex.Validators.Unknown
       validator -> validator
+    end
+  end
+
+  defp expand_rules(expanders, attribute, spec) do
+    rules = Enum.flat_map(expanders, fn expander ->
+      expanded_rule_set = expander.expand(attribute, spec)
+      if expanded_rule_set != spec do
+        expanded_rule_set
+      else
+        []
+      end
+    end)
+    if rules == [] do
+      spec
+    else
+      expand_rules(expanders, attribute, rules)
     end
   end
 end

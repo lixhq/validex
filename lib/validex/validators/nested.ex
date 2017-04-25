@@ -1,5 +1,6 @@
 defmodule Validex.Validators.Nested do
   use Validex.Validator
+  use Validex.RuleExpander
 
   def validate(_, _, :__validex_missing__), do: []
 
@@ -20,4 +21,17 @@ defmodule Validex.Validators.Nested do
         {response, [attribute | attribute_path], validator, msg}
     end)
   end
+
+  def expand(_, map) when is_map(map) do
+    [type: :map, nested: map]
+  end
+
+  def expand(_, rule_set) when is_list(rule_set) do
+    if Keyword.has_key?(rule_set, :nested) do
+      Keyword.put_new(rule_set, :type, Validex.Typer.type_of(Keyword.fetch!(rule_set, :nested)))
+    else
+      rule_set
+    end
+  end
+
 end

@@ -1,5 +1,6 @@
 defmodule Validex.Validators.Type do
   use Validex.Validator
+  use Validex.RuleExpander
 
   def validate(_, _, :__validex_missing__), do: []
 
@@ -11,5 +12,10 @@ defmodule Validex.Validators.Type do
       [{:ok, attribute, :type}]
     end
   end
+
+  def expand(_, type_shorthand) when type_shorthand in [:string, :integer] do
+    [type: type_shorthand]
+  end
+
 end
 
