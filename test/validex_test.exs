@@ -31,8 +31,7 @@ defmodule ValidexTest do
   end
 
   test "multiple properties are all verified" do
-    assert [{:error, :name, :type, "name should be string but was integer"},
-            {:error, :age, :type, "age should be integer but was string"}]
+    assert [{:error, :age, :type, "age should be integer but was string"}, {:error, :name, :type, "name should be string but was integer"}]
            = Validex.errors(%{ age: "15", name: 755 }, [name: :string, age: :integer])
   end
 

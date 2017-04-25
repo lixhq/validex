@@ -24,7 +24,18 @@ defmodule Validex do
         validator = find_validator(validators(), rule_kind)
         validator.validate(rule_kind, attribute, rule_spec, value)
       end)
-    end)
+    end) |> Enum.sort(
+      fn a, b ->
+        ak = elem(a, 1)
+        bk = elem(b, 1)
+
+        case {ak, bk} do
+          {ak, bk} when is_atom(ak) and is_list(bk) -> [ak] <= bk
+          {ak, bk} when is_list(ak) and is_atom(bk) -> ak <= [bk]
+          {ak, bk} -> ak <= bk
+        end
+
+      end) |> Enum.uniq()
   end
 
   @doc """
@@ -81,12 +92,12 @@ defmodule Validex do
 
   defp validators() do
     load_plugins()
-    Agent.get(__MODULE__, &Map.fetch!(&1, :validators))
+    Agent.get(__MODULE__, &Map.fetch!(&1, :validators)) |> Enum.uniq
   end
 
   defp expanders() do
     load_plugins()
-    Agent.get(__MODULE__, &Map.fetch!(&1, :expanders))
+    Agent.get(__MODULE__, &Map.fetch!(&1, :expanders)) |> Enum.uniq
   end
 
   defp load_plugins() do
