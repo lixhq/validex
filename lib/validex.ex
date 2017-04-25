@@ -1,4 +1,5 @@
 defmodule Validex do
+
   @moduledoc """
   Documentation for Validex.
   """
@@ -13,23 +14,17 @@ defmodule Validex do
 
   """
   def verify(data, schema) when is_map(data) and is_list(schema) do
-    validators = Validex.Validator.load_all()
-    expanders = Validex.RuleExpander.load_all()
-    expanded_schema = Enum.map(schema,
-                               fn {attribute, spec} ->
-                                 {attribute, expand_rules(expanders, attribute, spec)}
-                               end)
+    expanded_schema = Enum.map(schema, fn {attribute, spec} ->
+      {attribute, expand_rules(expanders(), attribute, spec)}
+    end)
 
-    Enum.flat_map(expanded_schema,
-             fn {attribute, rules} when is_list(rules) ->
-               value = Map.get(data, attribute, :__validex_missing__)
-               Enum.flat_map(rules, fn {rule_kind, rule_spec} ->
-                 validator = find_validator(validators, rule_kind)
-                 validator.validate(rule_kind, attribute, rule_spec, value)
-               end)
-
-             end
-    )
+    Enum.flat_map(expanded_schema, fn {attribute, rules} when is_list(rules) ->
+      value = Map.get(data, attribute, :__validex_missing__)
+      Enum.flat_map(rules, fn {rule_kind, rule_spec} ->
+        validator = find_validator(validators(), rule_kind)
+        validator.validate(rule_kind, attribute, rule_spec, value)
+      end)
+    end)
   end
 
   @doc """
@@ -83,4 +78,26 @@ defmodule Validex do
       expand_rules(expanders, attribute, rules)
     end
   end
+
+  defp validators() do
+    load_plugins()
+    Agent.get(__MODULE__, &Map.fetch!(&1, :validators))
+  end
+
+  defp expanders() do
+    load_plugins()
+    Agent.get(__MODULE__, &Map.fetch!(&1, :expanders))
+  end
+
+  defp load_plugins() do
+    unless Process.whereis(__MODULE__) do
+      Agent.start(fn -> Map.new() end, name: __MODULE__)
+      Agent.update(__MODULE__, &Map.merge(&1, %{
+        expanders: Validex.PluginLoader.load_all(Validex.RuleExpander),
+        validators: Validex.PluginLoader.load_all(Validex.Validator)
+      }))
+    end
+  end
+
 end
+

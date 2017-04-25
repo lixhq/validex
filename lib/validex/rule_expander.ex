@@ -1,16 +1,12 @@
 defmodule Validex.RuleExpander do
 
-  @callback expand(attribute :: atom, shorthand :: atom) :: keyword
+  @callback expand(attribute :: atom, rule_set :: any) :: keyword
 
   defmacro __using__(_opts) do
     quote do
       @behaviour Validex.RuleExpander
       @before_compile Validex.RuleExpander
     end
-  end
-
-  def load_all() do
-    Validex.PluginLoader.load_all(__MODULE__)
   end
 
   defmacro __before_compile__(_env) do

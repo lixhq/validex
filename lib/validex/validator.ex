@@ -23,7 +23,4 @@ defmodule Validex.Validator do
     end
   end
 
-  def load_all() do
-    Validex.PluginLoader.load_all(__MODULE__)
-  end
 end
