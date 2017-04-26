@@ -102,4 +102,9 @@ defmodule ValidexTest do
     ] = Validex.errors(%{ name: "simon" }, [name: [wtfbbq: :roflcopter]])
   end
 
+  test "empty string is considering to be absent" do
+    assert [{:error, :name, :presence, _}, {:ok, :name, :type}
+    ] = Validex.verify(%{ name: "" }, [name: :string])
+  end
+
 end

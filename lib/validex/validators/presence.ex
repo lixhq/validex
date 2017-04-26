@@ -1,10 +1,13 @@
 defmodule Validex.Validators.Presence do
   use Validex.Validator
   use Validex.RuleExpander
+  @blank_values ["", :__validex_missing__]
 
   def validate(_, false, _), do: []
 
-  def validate(attribute, spec, :__validex_missing__) when spec in [true, :__validex_default__presence] do
+  def validate(attribute, spec, v) when
+    v in @blank_values and
+    spec in [true, :__validex_default__presence] do
     [{:error, attribute, :presence, "#{attribute} is a required attribute but was absent"}]
   end
 

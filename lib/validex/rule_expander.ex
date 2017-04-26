@@ -41,7 +41,7 @@ defmodule Validex.RuleExpander do
 
   defmacro __before_compile__(_env) do
     quote do
-      def expand(_,rule_set), do: rule_set
+      def expand(_,rule_set), do: []
     end
   end
 end

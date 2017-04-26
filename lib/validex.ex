@@ -5,7 +5,7 @@ defmodule Validex do
   """
 
   @doc """
-  Verify data against schema returning both valid and invalid validations
+  Verify data against schema returning both valid and invalid validations.
 
   ## Examples
 
@@ -24,6 +24,9 @@ defmodule Validex do
         validator = find_validator(validators(), rule_kind)
         validator.validate(rule_kind, attribute, rule_spec, value)
       end)
+      {attribute, shorthand} when is_atom(shorthand) ->
+        value = Map.get(data, attribute, :__validex_missing__)
+        Validex.Validators.Unknown.validate(shorthand, attribute, shorthand, value)
     end) |> Enum.sort(
       fn a, b ->
         ak = elem(a, 1)
@@ -35,7 +38,7 @@ defmodule Validex do
           {ak, bk} -> ak <= bk
         end
 
-      end) |> Enum.uniq()
+      end)
   end
 
   @doc """
@@ -75,14 +78,11 @@ defmodule Validex do
   end
 
   defp expand_rules(expanders, attribute, spec) do
-    rules = Enum.flat_map(expanders, fn expander ->
-      expanded_rule_set = expander.expand(attribute, spec)
-      if expanded_rule_set != spec do
-        expanded_rule_set
-      else
-        []
-      end
-    end)
+    rules = expanders
+            |> Enum.map(&(&1.expand(attribute, spec)))
+            |> Enum.filter(&(&1 != spec))
+            |> Enum.concat |> Enum.uniq
+
     if rules == [] do
       spec
     else

@@ -23,13 +23,16 @@ defmodule RuleExpanderTest do
 
   test "can mark presence as false by default" do
     assert [{:error, :name, :presence, _}] = Validex.errors(%{ }, [name: :string])
-    Agent.update(Validex, &Map.update!(&1, :expanders, fn expanders -> [OptionalByDefault | expanders] end))
+    :ok = add_expander(OptionalByDefault)
     assert [] = Validex.errors(%{ }, [name: :string])
   end
 
   test "can expand to a nested spec" do
+    assert [{:error, :currency, :__validex__unknown_validator__, _}
+    ] = Validex.verify(%{ currency: %{ amount: 5, currency_code: "DKK" }}, [currency: :currency])
 
-    Agent.update(Validex, &Map.update!(&1, :expanders, fn expanders -> [Currency | expanders] -- [OptionalByDefault] end))
+    :ok = add_expander(Currency)
+
     assert [
       {:ok, :currency, :presence},
       {:ok, :currency, :type},
@@ -38,6 +41,13 @@ defmodule RuleExpanderTest do
         {:ok, [:currency, :currency_code], :presence},
         {:ok, [:currency, :currency_code], :type}
     ] = Validex.verify(%{ currency: %{ amount: 5, currency_code: "DKK" }}, [currency: :currency])
+  end
+
+  defp add_expander(expander) do
+    Agent.update(Validex, &Map.update!(&1, :expanders, fn expanders ->
+      expanders = expanders -- [Currency, OptionalByDefault]
+      [expander | expanders]
+    end))
   end
 
 end
