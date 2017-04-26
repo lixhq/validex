@@ -5,23 +5,28 @@ defmodule Validex.RuleExpander do
 
   Example:
 
-    defmodule OptionalByDefault do
-      use Validex.RuleExpander
+  The following rule-expander makes attributes optional by default
 
-      def expand(_, spec) when is_list(spec) do
-        Keyword.update(spec, :presence, fn
-          :default -> false
-          v -> v end)
+      defmodule OptionalByDefault do
+        use Validex.RuleExpander
+
+        def expand(_, spec) when is_list(spec) do
+          Keyword.update(spec, :presence, fn
+            :__validex_default__presence -> false
+            v -> v end)
+        end
       end
-    end
 
-    defmodule Currency do
-      use Validex.RuleExpander
+  The following rule-expander creates a :currency shorthand for defining
+  a schema with an amount of type integer and currency_code of type string
 
-      def expand(_, :user) do
-        [nested: %{ amount: :integer, currency_code: :string}]
+      defmodule Currency do
+        use Validex.RuleExpander
+
+        def expand(_, :currency) do
+          [nested: %{ amount: :integer, currency_code: :string}]
+        end
       end
-    end
 
   """
 
