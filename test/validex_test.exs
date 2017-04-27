@@ -1,5 +1,5 @@
 defmodule ValidexTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   doctest Validex
 
   test "string type is verified" do

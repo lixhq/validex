@@ -27,10 +27,9 @@ defmodule Validex.Validators.Nested do
   end
 
   def expand(_, rule_set) when is_list(rule_set) do
-    if Keyword.has_key?(rule_set, :nested) do
-      Keyword.put_new(rule_set, :type, Validex.Typer.type_of(Keyword.fetch!(rule_set, :nested)))
-    else
-      rule_set
+    case Keyword.take(rule_set, [:nested]) do
+      [nested: nested] when is_map(nested) -> Keyword.put_new(rule_set, :type, :map)
+      _ -> rule_set
     end
   end
 

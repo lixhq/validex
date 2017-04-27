@@ -1,4 +1,4 @@
-defmodule OptionalByDefault do
+defmodule Validex.RuleExpanderTest.OptionalByDefault do
   use Validex.RuleExpander
   @moduledoc false
 
@@ -9,7 +9,7 @@ defmodule OptionalByDefault do
   end
 end
 
-defmodule Currency do
+defmodule Validex.RuleExpanderTest.Currency do
   use Validex.RuleExpander
   @moduledoc false
 
@@ -18,8 +18,18 @@ defmodule Currency do
   end
 end
 
-defmodule RuleExpanderTest do
-  use ExUnit.Case
+defmodule Validex.RuleExpanderTest do
+  use ExUnit.Case, async: true
+  alias Validex.RuleExpanderTest.{OptionalByDefault, Currency}
+
+  setup_all do
+    Validex.load_plugins()
+    {:ok, [expanders: Agent.get(Validex, &Map.get(&1, :expanders))]}
+  end
+
+  setup %{ expanders: expanders } do
+    on_exit(fn -> Agent.update(Validex, &Map.put(&1, :expanders, expanders)) end)
+  end
 
   test "can mark presence as false by default" do
     assert [{:error, :name, :presence, _}] = Validex.errors(%{ }, [name: :string])
@@ -45,7 +55,6 @@ defmodule RuleExpanderTest do
 
   defp add_expander(expander) do
     Agent.update(Validex, &Map.update!(&1, :expanders, fn expanders ->
-      expanders = expanders -- [Currency, OptionalByDefault]
       [expander | expanders]
     end))
   end

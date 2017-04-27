@@ -100,7 +100,7 @@ defmodule Validex do
     Agent.get(__MODULE__, &Map.fetch!(&1, :expanders)) |> Enum.uniq
   end
 
-  defp load_plugins() do
+  def load_plugins() do
     unless Process.whereis(__MODULE__) do
       Agent.start(fn -> Map.new() end, name: __MODULE__)
       Agent.update(__MODULE__, &Map.merge(&1, %{
