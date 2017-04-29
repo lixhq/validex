@@ -3,17 +3,21 @@ defmodule ValidexTest do
   doctest Validex
 
   test "string type is verified" do
-    assert [{:error, :name, :type, "name should be string but was integer"}]
-           = Validex.errors(%{ name: 455 }, [name: [type: :string]])
+    assert [
+      {:error, :name, :type, "name should be string but was integer"}
+    ] = Validex.errors(%{ name: 455 }, [name: [type: :string]])
   end
 
   test "integer type is verified" do
-    assert [{:error, :age, :type, "age should be integer but was string"}]
-           = Validex.errors(%{ age: "15" }, [age: [type: :integer]])
+    assert [
+      {:error, :age, :type, "age should be integer but was string"}
+    ] = Validex.errors(%{ age: "15" }, [age: [type: :integer]])
   end
 
   test "shorthand form works" do
-    assert [{:ok, :age, :presence}, {:ok, :age, :type}] = Validex.verify(%{age: 15}, [age: :integer])
+    assert [
+      {:ok, :age, :presence}, {:ok, :age, :type}
+    ] = Validex.verify(%{age: 15}, [age: :integer])
   end
 
   test "can mix shorthand and fullform" do
@@ -31,13 +35,16 @@ defmodule ValidexTest do
   end
 
   test "multiple properties are all verified" do
-    assert [{:error, :age, :type, "age should be integer but was string"}, {:error, :name, :type, "name should be string but was integer"}]
-           = Validex.errors(%{ age: "15", name: 755 }, [name: :string, age: :integer])
+    assert [
+      {:error, :age, :type, "age should be integer but was string"},
+      {:error, :name, :type, "name should be string but was integer"}
+    ] = Validex.errors(%{ age: "15", name: 755 }, [name: :string, age: :integer])
   end
 
   test "properties are required by default" do
-    assert [{:error, :age, :presence, "age is a required attribute but was absent"}]
-           = Validex.errors(%{}, [age: :integer])
+    assert [
+      {:error, :age, :presence, "age is a required attribute but was absent"}
+    ] = Validex.errors(%{}, [age: :integer])
   end
 
   test "optional properties are not required" do
