@@ -1,10 +1,10 @@
 defmodule TypeTest do
   use ExUnit.Case, async: true
 
-  @types [:string, :integer, :float, :number, :atom, :list, :map]
-  @values ["hello", 5, 5.6, 5.6, :bla, [], %{}]
+  @types [:string, :integer, :float, :number, :number, :atom, :list, :map]
+  @values ["hello", 5, 5.6, 5, 5.6, :bla, [], %{}]
 
-  @valid_cases Enum.zip(@types, @values) ++ Enum.map(@values, &{:any, &1}) ++ [{:number, 5}]
+  @valid_cases Enum.zip(@types, @values) ++ Enum.map(@values, &{:any, &1})
 
   @invalid_cases Enum.uniq(
     for t <- @types, v <- @values, do: {t, v}
