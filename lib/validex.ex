@@ -18,7 +18,7 @@ defmodule Validex do
       {attribute, expand_rules(expanders(), attribute, spec)}
     end)
 
-    Enum.flat_map(expanded_schema, fn {attribute, rules} when is_list(rules) ->
+    result = Enum.flat_map(expanded_schema, fn {attribute, rules} when is_list(rules) ->
       value = Map.get(data, attribute, :__validex_missing__)
       Enum.flat_map(rules, fn {rule_kind, rule_spec} ->
         validator = find_validator(validators(), rule_kind)
@@ -27,15 +27,17 @@ defmodule Validex do
       {attribute, shorthand} when is_atom(shorthand) ->
         value = Map.get(data, attribute, :__validex_missing__)
         Validex.Validators.Unknown.validate(shorthand, attribute, shorthand, value)
-    end) |> Enum.sort(
+    end) 
+    
+    result |> Enum.uniq() |> Enum.sort(
       fn a, b ->
         ak = elem(a, 1)
         bk = elem(b, 1)
 
         case {ak, bk} do
-          {ak, bk} when is_atom(ak) and is_list(bk) -> [ak] <= bk
-          {ak, bk} when is_list(ak) and is_atom(bk) -> ak <= [bk]
-          {ak, bk} -> ak <= bk
+          {ak, bk} when is_atom(ak) and is_list(bk) -> {[ak], elem(a, 2)} <= {bk, elem(b, 2)}
+          {ak, bk} when is_list(ak) and is_atom(bk) -> {ak, elem(a, 2)} <= {[bk], elem(b, 2)}
+          {ak, bk} -> {ak, elem(a, 2)} <= {bk, elem(b, 2)}
         end
 
       end)
