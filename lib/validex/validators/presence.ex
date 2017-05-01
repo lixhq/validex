@@ -1,4 +1,27 @@
 defmodule Validex.Validators.Presence do
+  @moduledoc """
+  The Presence validator is used for validating the presence of values, the empty string in addition to any value not included in a map is considered absence.
+
+  In addition to validating presence the validator function as a RuleExpander which expands rules to include presence by default if it hasn't been specified otherwise.
+
+  ## Examples
+
+      iex> Validex.Validators.Presence.validate(:name, true, "")
+      [{:error, :name, :presence, "name is a required attribute but was absent"}]
+
+      iex> Validex.Validators.Presence.validate(:name, true, :__validex_missing__)
+      [{:error, :name, :presence, "name is a required attribute but was absent"}]
+
+      iex> Validex.Validators.Presence.validate(:name, false, "")
+      []
+
+      iex> Validex.Validators.Presence.expand(:name, [type: :string])
+      [presence: :__validex_default__presence, type: :string]
+
+      iex> Validex.Validators.Presence.expand(:name, [presence: false, type: :string])
+      [presence: false, type: :string]
+  """
+
   use Validex.Validator
   use Validex.RuleExpander
   @blank_values ["", :__validex_missing__]

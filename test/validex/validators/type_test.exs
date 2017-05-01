@@ -1,6 +1,7 @@
 defmodule TypeTest do
   use ExUnit.Case, async: true
 
+  doctest Validex.Validators.Type
   @types [:string, :integer, :float, :number, :number, :atom, :list, :map]
   @values ["hello", 5, 5.6, 5, 5.6, :bla, [], %{}]
 

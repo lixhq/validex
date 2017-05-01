@@ -1,4 +1,15 @@
 defmodule Validex.Validators.Type do
+  @moduledoc """
+  The Type validator is used for validating types of values.
+
+  ## Examples
+
+      iex> Validex.Validators.Type.validate(:name, :string, "Simon")
+      [{:ok, :name, :type}]
+
+      iex> Validex.Validators.Type.validate(:name, :string, 5)
+      [{:error, :name, :type, "name should be string but was integer"}]
+  """
   use Validex.Validator
   use Validex.RuleExpander
 

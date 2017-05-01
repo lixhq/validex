@@ -1,6 +1,8 @@
 defmodule Validex.Validators.ExactTest do
   use ExUnit.Case, async: true
 
+  doctest Validex.Validators.Exact
+
   describe "exact" do
     test "works with strings" do
       assert [

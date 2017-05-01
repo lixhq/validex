@@ -1,4 +1,8 @@
 defmodule Validex.PluginLoader do
+  @moduledoc """
+  Used for loading RuleExpanders and Validators.
+  """
+
   @doc """
   Loads all plugins in all code paths.
 
