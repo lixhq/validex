@@ -4,6 +4,7 @@ defmodule Validex.Validators.ExactTest do
   doctest Validex.Validators.Exact
 
   describe "exact" do
+
     test "works with strings" do
       assert [
         {:ok, :currency_code, :exact},

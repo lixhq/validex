@@ -8,7 +8,8 @@ defmodule Validex.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps(),
-     package: package()]
+     package: package(),
+     docs: docs()]
   end
 
   def application do
@@ -25,6 +26,14 @@ defmodule Validex.Mixfile do
      licenses: ["MIT License"],
      description: "Use ValidEx for all your elixir data validation needs",
      links: %{ github: "https://github.com/lixhq/validex" }
+    ]
+  end
+
+  defp docs do
+    [
+      canonical: "http://hexdocs.pm/validex",
+      main: "Validex",
+      source_url: "https://github.com/lixhq/validex"
     ]
   end
 end

@@ -23,7 +23,6 @@ defmodule Validex.RuleExpanderTest do
   alias Validex.RuleExpanderTest.{OptionalByDefault, Currency}
 
   setup_all do
-    Validex.load_plugins()
     {:ok, [expanders: Agent.get(Validex, &Map.get(&1, :expanders))]}
   end
 

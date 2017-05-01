@@ -2,7 +2,7 @@ defmodule Validex.Validators.Presence do
   @moduledoc """
   The Presence validator is used for validating the presence of values, the empty string in addition to any value not included in a map is considered absence.
 
-  In addition to validating presence the validator function as a RuleExpander which expands rules to include presence by default if it hasn't been specified otherwise.
+  In addition to validating presence the validator function as a `Validex.RuleExpander` which expands rules to include presence by default if it hasn't been specified otherwise.
 
   ## Examples
 
