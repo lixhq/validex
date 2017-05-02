@@ -22,7 +22,7 @@ defmodule Validex.Mixfile do
 
   defp package do
     [
-     maintainers: "Simon Stender Boisen",
+     maintainers: ["Simon Stender Boisen"],
      licenses: ["MIT License"],
      description: "Use ValidEx for all your elixir data validation needs",
      links: %{ github: "https://github.com/lixhq/validex" }

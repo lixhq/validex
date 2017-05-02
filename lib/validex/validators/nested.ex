@@ -32,7 +32,7 @@ defmodule Validex.Validators.Nested do
     end, &1))
   end
 
-  def adjust_attribute_path(attribute_adjuster, res) do
+  defp adjust_attribute_path(attribute_adjuster, res) do
     attr = elem(res, 1)
     Tuple.insert_at(res, 1, attribute_adjuster.(attr)) |> Tuple.delete_at(2)
   end
