@@ -14,7 +14,7 @@ defmodule Validex.Validators.OneOfTest do
       ] = Validex.verify(%{ prop: 5 }, schema)
     end
 
-    test "errors when there is one" do
+    test "errors when it should" do
       schema = [prop: [one_of: [:string, :integer]]]
       assert [
         {:error, :prop, :one_of, _}, {:ok, :prop, :presence},
@@ -43,6 +43,19 @@ defmodule Validex.Validators.OneOfTest do
       assert [
         {:ok, :prop, :one_of}, {:ok, :prop, :presence}, {:ok, :prop, :type}
       ] = Validex.verify(%{ prop: :rand.uniform(1000) }, schema)
+
+    end
+
+    test "works with nested" do
+      schema = [prop: [one_of: ["DKK", %{ name: :string }]]]
+
+      assert [
+        {:ok, :prop, :one_of},
+        {:ok, :prop, :presence},
+        {:ok, :prop, :type},
+        {:ok, [:prop, :name], :presence},
+        {:ok, [:prop, :name], :type}
+      ] = Validex.verify(%{ prop: %{ name: "Simon" }}, schema)
 
     end
 

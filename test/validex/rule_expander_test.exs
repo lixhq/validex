@@ -2,7 +2,7 @@ defmodule Validex.RuleExpanderTest.OptionalByDefault do
   use Validex.RuleExpander
   @moduledoc false
 
-  def expand(_, spec) when is_list(spec) do
+  def expand(spec) when is_list(spec) do
     if Keyword.keyword?(spec) do
       Keyword.update(spec, :presence, false, fn
         :default -> false
@@ -17,7 +17,7 @@ defmodule Validex.RuleExpanderTest.Currency do
   use Validex.RuleExpander
   @moduledoc false
 
-  def expand(_, :currency) do
+  def expand(:currency) do
     [nested: %{ amount: :integer, currency_code: :string}]
   end
 end

@@ -25,11 +25,15 @@ defmodule Validex.Validators.Exact do
     if expected_value == actual_value do
       [{:ok, attribute, :exact}]
     else
-      [{:error, attribute, :exact, "expected #{expected_value} but got #{actual_value}"}]
+      printable_value = case actual_value do
+        actual_value when is_list(actual_value) or is_map(actual_value) -> inspect(actual_value)
+        _ -> actual_value
+      end
+      [{:error, attribute, :exact, "expected #{expected_value} but got #{printable_value}"}]
     end
   end
 
-  def expand(_, exact_value) when is_binary(exact_value) or is_number(exact_value) do
+  def expand(exact_value) when is_binary(exact_value) or is_number(exact_value) do
     [exact: exact_value]
   end
 end

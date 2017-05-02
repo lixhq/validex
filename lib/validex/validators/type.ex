@@ -51,7 +51,7 @@ defmodule Validex.Validators.Type do
     end
   end
 
-  def expand(_, type_shorthand) when type_shorthand in [:string, :integer] do
+  def expand(type_shorthand) when type_shorthand in [:string, :integer] do
     [type: type_shorthand]
   end
 

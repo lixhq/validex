@@ -15,7 +15,7 @@ defmodule Validex do
   """
   def verify(data, schema) when is_map(data) and is_list(schema) do
     expanded_schema = Enum.map(schema, fn {attribute, spec} ->
-      {attribute, expand_rules(expanders(), attribute, spec)}
+      {attribute, expand_rules(expanders(), spec)}
     end)
 
     result = Enum.flat_map(expanded_schema, fn {attribute, rules} when is_list(rules) ->
@@ -79,16 +79,20 @@ defmodule Validex do
     end
   end
 
-  defp expand_rules(expanders, attribute, spec) do
+  def expand_rules(spec) do
+    expand_rules(expanders(), spec)
+  end
+
+  defp expand_rules(expanders, spec) do
     rules = expanders
-            |> Enum.map(&(&1.expand(attribute, spec)))
+            |> Enum.map(&(&1.expand(spec)))
             |> Enum.filter(&(&1 != spec))
             |> Enum.concat |> Enum.uniq
 
     if rules == [] do
       spec
     else
-      expand_rules(expanders, attribute, rules)
+      expand_rules(expanders, rules)
     end
   end
 

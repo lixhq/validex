@@ -10,7 +10,7 @@ defmodule Validex.RuleExpander do
       defmodule OptionalByDefault do
         use Validex.RuleExpander
 
-        def expand(_, spec) when is_list(spec) do
+        def expand(spec) when is_list(spec) do
           Keyword.update(spec, :presence, fn
             :__validex_default__presence -> false
             v -> v end)
@@ -23,14 +23,14 @@ defmodule Validex.RuleExpander do
       defmodule Currency do
         use Validex.RuleExpander
 
-        def expand(_, :currency) do
+        def expand(:currency) do
           [nested: %{ amount: :integer, currency_code: :string}]
         end
       end
 
   """
 
-  @callback expand(attribute :: atom, rule_set :: any) :: keyword
+  @callback expand(rule_set :: any) :: keyword
 
   defmacro __using__(_opts) do
     quote do
@@ -41,7 +41,7 @@ defmodule Validex.RuleExpander do
 
   defmacro __before_compile__(_env) do
     quote do
-      def expand(_,rule_set), do: []
+      def expand(rule_set), do: []
     end
   end
 end

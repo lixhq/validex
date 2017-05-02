@@ -37,11 +37,11 @@ defmodule Validex.Validators.Nested do
     Tuple.insert_at(res, 1, attribute_adjuster.(attr)) |> Tuple.delete_at(2)
   end
 
-  def expand(_, map) when is_map(map) do
+  def expand(map) when is_map(map) do
     [type: :map, nested: map]
   end
 
-  def expand(_, rule_set) when is_list(rule_set) do
+  def expand(rule_set) when is_list(rule_set) do
     if Keyword.keyword?(rule_set) do
       case Keyword.take(rule_set, [:nested]) do
         [nested: nested] when is_map(nested) -> Keyword.put_new(rule_set, :type, :map)

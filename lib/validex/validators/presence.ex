@@ -15,10 +15,10 @@ defmodule Validex.Validators.Presence do
       iex> Validex.Validators.Presence.validate(:name, false, "")
       []
 
-      iex> Validex.Validators.Presence.expand(:name, [type: :string])
+      iex> Validex.Validators.Presence.expand([type: :string])
       [presence: :__validex_default__presence, type: :string]
 
-      iex> Validex.Validators.Presence.expand(:name, [presence: false, type: :string])
+      iex> Validex.Validators.Presence.expand([presence: false, type: :string])
       [presence: false, type: :string]
   """
 
@@ -38,7 +38,7 @@ defmodule Validex.Validators.Presence do
     [{:ok, attribute, :presence}]
   end
 
-  def expand(_, rule_set) when is_list(rule_set) do
+  def expand(rule_set) when is_list(rule_set) do
     if Keyword.keyword?(rule_set) do
       Keyword.put_new(rule_set, :presence, :__validex_default__presence)
     else
