@@ -2,7 +2,23 @@ defmodule Validex.Validators.Nested do
   use Validex.Validator
   use Validex.RuleExpander
 
-  def validate(_, _, :__validex_missing__), do: []
+  def validate(attribute, [rule], list) when is_list(list) do
+
+    list
+    |> Enum.with_index()
+    |> Enum.flat_map(fn {v, index} ->
+      Validex.verify(
+        %{ attribute => v },
+        Keyword.new([{ attribute, rule }])
+      )
+      |> Enum.reject(&match?({:ok, _, :presence}, &1))
+      |> Enum.map(&adjust_attribute_path(fn
+        attr when is_atom(attr) -> [attr, index]
+        [_ | attrs] when is_list(attrs) -> [attribute, index] ++ attrs
+      end, &1))
+    end)
+
+  end
 
   def validate(_, _, value) when not is_map(value) do
     []
@@ -10,16 +26,15 @@ defmodule Validex.Validators.Nested do
 
   def validate(attribute, map, value) when is_map(value) do
     Validex.verify(value, Keyword.new(map))
-    |> Enum.map(fn
-      {:ok, nested_attribute, validator} when is_atom(nested_attribute)->
-        {:ok, [attribute, nested_attribute], validator}
-      {:ok, attribute_path, validator} when is_list(attribute_path) ->
-        {:ok, [attribute | attribute_path], validator}
-      {response, nested_attribute, validator, msg} when is_atom(nested_attribute) ->
-        {response, [attribute, nested_attribute], validator, msg}
-      {response, attribute_path, validator, msg} when is_list(attribute_path) ->
-        {response, [attribute | attribute_path], validator, msg}
-    end)
+    |> Enum.map(&adjust_attribute_path(fn
+      attr when is_atom(attr) -> [attribute, attr]
+      attrs when is_list(attrs) -> [attribute | attrs]
+    end, &1))
+  end
+
+  def adjust_attribute_path(attribute_adjuster, res) do
+    attr = elem(res, 1)
+    Tuple.insert_at(res, 1, attribute_adjuster.(attr)) |> Tuple.delete_at(2)
   end
 
   def expand(_, map) when is_map(map) do
@@ -27,9 +42,13 @@ defmodule Validex.Validators.Nested do
   end
 
   def expand(_, rule_set) when is_list(rule_set) do
-    case Keyword.take(rule_set, [:nested]) do
-      [nested: nested] when is_map(nested) -> Keyword.put_new(rule_set, :type, :map)
-      _ -> rule_set
+    if Keyword.keyword?(rule_set) do
+      case Keyword.take(rule_set, [:nested]) do
+        [nested: nested] when is_map(nested) -> Keyword.put_new(rule_set, :type, :map)
+        _ -> rule_set
+      end
+    else
+      [type: :list, nested: rule_set]
     end
   end
 

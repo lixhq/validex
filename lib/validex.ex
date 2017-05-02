@@ -27,8 +27,8 @@ defmodule Validex do
       {attribute, shorthand} when is_atom(shorthand) ->
         value = Map.get(data, attribute, :__validex_missing__)
         Validex.Validators.Unknown.validate(shorthand, attribute, shorthand, value)
-    end) 
-    
+    end)
+
     result |> Enum.uniq() |> Enum.sort(
       fn a, b ->
         ak = elem(a, 1)

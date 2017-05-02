@@ -39,7 +39,11 @@ defmodule Validex.Validators.Presence do
   end
 
   def expand(_, rule_set) when is_list(rule_set) do
-    Keyword.put_new(rule_set, :presence, :__validex_default__presence)
+    if Keyword.keyword?(rule_set) do
+      Keyword.put_new(rule_set, :presence, :__validex_default__presence)
+    else
+      []
+    end
   end
 
 end

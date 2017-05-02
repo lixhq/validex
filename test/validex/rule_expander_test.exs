@@ -3,9 +3,13 @@ defmodule Validex.RuleExpanderTest.OptionalByDefault do
   @moduledoc false
 
   def expand(_, spec) when is_list(spec) do
-    Keyword.update(spec, :presence, false, fn
-      :default -> false
-      v -> v end)
+    if Keyword.keyword?(spec) do
+      Keyword.update(spec, :presence, false, fn
+        :default -> false
+        v -> v end)
+    else
+      []
+    end
   end
 end
 
