@@ -9,6 +9,7 @@ defmodule Validex.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     description: "A data validation library for Elixir",
      deps: deps(),
      package: package(),
      docs: docs()]
@@ -26,7 +27,6 @@ defmodule Validex.Mixfile do
     [
      maintainers: ["Simon Stender Boisen"],
      licenses: ["MIT License"],
-     description: "Use ValidEx for all your elixir data validation needs",
      links: %{ github: "https://github.com/lixhq/validex" }
     ]
   end
