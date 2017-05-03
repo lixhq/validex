@@ -13,5 +13,7 @@ matrix:
     - elixir: 1.4
       otp_release: 19.2
 
+env:
+  - MIX_ENV=test
 
 script: mix coveralls.travis
