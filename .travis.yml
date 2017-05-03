@@ -17,3 +17,7 @@ env:
   - MIX_ENV=test
 
 script: mix coveralls.travis
+
+after_script:
+  - MIX_ENV=docs deps.get
+  - MIX_ENV=docs inch.report
