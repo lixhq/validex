@@ -38,7 +38,7 @@ Documentation can be found at [https://hexdocs.pm/validex](https://hexdocs.pm/va
 ## Prior art
 
 - [PropTypex](https://github.com/lixhq/proptypex) which were the previous library we wrote for doing data validation.
-- [Vex](https://github.com/CargoSense/vex) A now aboned validation library by the people behind [Absinthe](http://absinthe-graphql.org/)
+- [Vex](https://github.com/CargoSense/vex) A now abandoned validation library by the people behind [Absinthe](http://absinthe-graphql.org/).
 
 ## License
 
