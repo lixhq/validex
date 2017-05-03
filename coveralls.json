@@ -1,0 +1,7 @@
+{
+  "skip_files": [
+    "test/support",
+    "lib/validex/validator.ex",
+    "lib/validex/rule_expander.ex"
+  ]
+}

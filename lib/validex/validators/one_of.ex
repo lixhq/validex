@@ -17,6 +17,4 @@ defmodule Validex.Validators.OneOf do
     end
 
   end
-
-  def rule_kind(), do: :one_of
 end

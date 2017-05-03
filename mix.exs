@@ -7,12 +7,15 @@ defmodule Validex.Mixfile do
     [app: :validex,
      version: @version,
      elixir: "~> 1.4",
+     elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      description: "A data validation library for Elixir",
      deps: deps(),
      package: package(),
-     docs: docs()]
+     docs: docs(),
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test]]
   end
 
   def application do
@@ -20,7 +23,10 @@ defmodule Validex.Mixfile do
   end
 
   defp deps do
-    [{:ex_doc, "~> 0.14", only: :dev, runtime: false}]
+    [
+      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.6", only: :test}
+    ]
   end
 
   defp package do
@@ -39,4 +45,7 @@ defmodule Validex.Mixfile do
       source_url: "https://github.com/lixhq/validex"
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_),     do: ["lib"]
 end

@@ -9,7 +9,13 @@ defmodule Validex.Validator do
   defmacro __using__(_) do
     quote do
       @behaviour Validex.Validator
-      @rule_kind Module.split(__MODULE__) |> List.last() |> String.downcase |> String.to_atom
+      @rule_kind Module.split(__MODULE__)
+        |> List.last()
+        |> String.split(~r{[A-Z]}, include_captures: true, trim: true)
+        |> Enum.chunk(2)
+        |> Enum.map(&(Enum.join(&1) |> String.downcase()))
+        |> Enum.join("_")
+        |> String.to_atom
 
       def validate(_, attribute, rule_spec, value) do
         validate(attribute, rule_spec, value)
