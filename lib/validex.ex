@@ -1,4 +1,6 @@
 defmodule Validex do
+  @default_expanders [Validex.Validators.Exact, Validex.Validators.Nested, Validex.Validators.Presence, Validex.Validators.Type]
+  @default_validators [Validex.Validators.Exact, Validex.Validators.Nested, Validex.Validators.OneOf, Validex.Validators.Presence, Validex.Validators.Type, Validex.Validators.Unknown]
 
   @moduledoc """
   Documentation for Validex.
@@ -13,15 +15,17 @@ defmodule Validex do
       [{:ok, :name, :presence}, {:error, :name, :type, "name should be string but was integer"}]
 
   """
-  def verify(data, schema) when is_map(data) and is_list(schema) do
+  def verify(data, schema, config \\ []) when is_map(data) and is_list(schema) do
+    {validators, expanders} = get_plugins(config)
+
     expanded_schema = Enum.map(schema, fn {attribute, spec} ->
-      {attribute, expand_rules(expanders(), spec)}
+      {attribute, expand_rules(expanders, spec)}
     end)
 
     result = Enum.flat_map(expanded_schema, fn {attribute, rules} when is_list(rules) ->
       value = Map.get(data, attribute, :__validex_missing__)
       Enum.flat_map(rules, fn {rule_kind, rule_spec} ->
-        validator = find_validator(validators(), rule_kind)
+        validator = find_validator(validators, rule_kind)
         validator.validate(rule_kind, attribute, rule_spec, value)
       end)
       {attribute, shorthand} when is_atom(shorthand) ->
@@ -52,8 +56,8 @@ defmodule Validex do
       [{:error, :name, :type, "name should be string but was integer"}]
 
   """
-  def errors(data, schema) do
-    verify(data, schema) |> Enum.filter(&match?({:error, _, _, _}, &1))
+  def errors(data, schema, config \\ []) when is_map(data) and is_list(schema) do
+    Validex.verify(data, schema, config) |> Enum.filter(&match?({:error, _, _, _}, &1))
   end
 
   @doc """
@@ -68,8 +72,8 @@ defmodule Validex do
       false
 
   """
-  def valid?(data, schema) do
-    errors(data, schema) == []
+  def valid?(data, schema, config \\ []) do
+    errors(data, schema, config) == []
   end
 
   defp find_validator(validators, rule_kind) do
@@ -80,7 +84,7 @@ defmodule Validex do
   end
 
   def expand_rules(spec) do
-    expand_rules(expanders(), spec)
+    expand_rules(@default_expanders, spec)
   end
 
   defp expand_rules(expanders, spec) do
@@ -96,24 +100,10 @@ defmodule Validex do
     end
   end
 
-  defp validators() do
-    load_plugins()
-    Agent.get(__MODULE__, &Map.fetch!(&1, :validators)) |> Enum.uniq
-  end
-
-  defp expanders() do
-    load_plugins()
-    Agent.get(__MODULE__, &Map.fetch!(&1, :expanders)) |> Enum.uniq
-  end
-
-  defp load_plugins() do
-    unless Process.whereis(__MODULE__) do
-      Agent.start(fn -> Map.new() end, name: __MODULE__)
-      Agent.update(__MODULE__, &Map.merge(&1, %{
-        expanders: Validex.PluginLoader.load_all(Validex.RuleExpander),
-        validators: Validex.PluginLoader.load_all(Validex.Validator)
-      }))
-    end
+  def get_plugins(config) do
+    expanders = Keyword.get(config, :expanders, []) ++ @default_expanders
+    validators = Keyword.get(config, :validators, []) ++ @default_validators
+    {validators, expanders}
   end
 
 end

@@ -49,26 +49,26 @@ defmodule Validex.Validators.NestedTest do
             %{ complex: %{ structure: "hello2" }}
           ]
         }, [my: [%{ complex: %{ structure: :string }}]])
-    end
 
-    assert [
-      {:ok, :my, :presence},
-      {:ok, :my, :type},
-      {:ok, [:my, 0], :type},
-      {:ok, [:my, 0, :complex], :type},
-      {:error, [:my, 0, :complex, :structure], :presence, _},
-      {:ok, [:my, 1], :type},
-      {:ok, [:my, 1, :complex], :type},
-      {:error, [:my, 1, :complex, :structure], :type, _},
-      {:error, [:my, 2], :type, _}
-    ] = Validex.verify(
-      %{
-        my: [
-          %{ complex: %{ }},
-          %{ complex: %{ structure: 5 }},
-          "hello"
-        ]
-      }, [my: [%{ complex: %{ structure: :string }}]])
+      assert [
+        {:ok, :my, :presence},
+        {:ok, :my, :type},
+        {:ok, [:my, 0], :type},
+        {:ok, [:my, 0, :complex], :type},
+        {:error, [:my, 0, :complex, :structure], :presence, _},
+        {:ok, [:my, 1], :type},
+        {:ok, [:my, 1, :complex], :type},
+        {:error, [:my, 1, :complex, :structure], :type, _},
+        {:error, [:my, 2], :type, _}
+      ] = Validex.verify(
+        %{
+          my: [
+            %{ complex: %{ }},
+            %{ complex: %{ structure: 5 }},
+            "hello"
+          ]
+        }, [my: [%{ complex: %{ structure: :string }}]])
+    end
   end
 end
 
