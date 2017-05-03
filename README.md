@@ -1,4 +1,4 @@
-# Validex [![Build Status](https://travis-ci.org/lixhq/validex.svg?branch=master)](https://travis-ci.org/lixhq/validex)
+# Validex [![Build Status](https://travis-ci.org/lixhq/validex.svg?branch=master)](https://travis-ci.org/lixhq/validex) [![Coverage Status](https://coveralls.io/repos/github/lixhq/validex/badge.svg?branch=master)](https://coveralls.io/github/lixhq/validex?branch=master)
 
 Validex is a library for doing data validation in Elixir.
 
