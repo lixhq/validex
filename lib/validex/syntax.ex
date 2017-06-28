@@ -1,7 +1,7 @@
 defmodule Validex.Syntax do
 
-  def optional(rules) do
-    Validex.expand_rules(rules) |> Keyword.put(:presence, false)
+  def optional(rules, additional_expanders \\ []) do
+    Validex.expand(rules, additional_expanders) |> Keyword.put(:presence, false)
   end
 
   def one_of(list) when is_list(list) do

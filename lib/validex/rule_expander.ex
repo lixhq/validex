@@ -12,7 +12,7 @@ defmodule Validex.RuleExpander do
 
         def expand(spec) when is_list(spec) do
           Keyword.update(spec, :presence, fn
-            :__validex_default__presence -> false
+            :__validex_default_presence -> false
             v -> v end)
         end
       end

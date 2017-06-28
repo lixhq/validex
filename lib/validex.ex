@@ -3,7 +3,20 @@ defmodule Validex do
   @default_validators [Validex.Validators.Exact, Validex.Validators.Nested, Validex.Validators.OneOf, Validex.Validators.Presence, Validex.Validators.Type, Validex.Validators.Unknown]
 
   @moduledoc """
-  Documentation for Validex.
+  Validex is a library for doing data validation in Elixir. Using a schema you
+  specify what rules each attribute in your schema should be validated against.
+  Each rule is implemented as a combination of `Validex.Validator` validators.
+
+  Before a schema is used for verification it is expanded, the purpose of the
+  expansion is twofold. First it translate syntactic shorthands into a proper
+  schema acceptable by `Validex.Validator` and secondly it allows for adding
+  default unspecified rules to each attribute in the schema. Expansion happens
+  using modules that implements the `Validex.RuleExpander` behaviour.
+
+  By default all attributes in a schema are assumed to be required and are thus
+  validated against the `Validex.Validators.Presence` validator, this happens because
+  `Validex.Validators.Presence` also expands each spec to include a presence
+  check.
   """
 
   @doc """
@@ -61,7 +74,8 @@ defmodule Validex do
   end
 
   @doc """
-  Verify data against schema returning true if no erros were found
+  Verify data against schema returning false if any errors were found, otherwise it
+  returns true.
 
   ## Examples
 
@@ -83,8 +97,21 @@ defmodule Validex do
     end
   end
 
-  def expand_rules(spec) do
-    expand_rules(@default_expanders, spec)
+  @doc """
+  Expands a rule using modules implementing the `Validex.RuleExpander`
+  behaviour. Optionally you can specify expanders to use in addition
+  to the built in expanders. Expansion happens
+
+  ## Examples
+
+      iex> Validex.expand(:string)
+      [presence: :__validex_default_presence, type: :string]
+
+      iex> Validex.expand(%{ name: :string })
+      [presence: :__validex_default_presence, type: :map, nested: %{ name: :string }]
+  """
+  def expand(spec, additional_expanders \\ []) do
+    expand_rules(@default_expanders ++ additional_expanders, spec)
   end
 
   defp expand_rules(expanders, spec) do
