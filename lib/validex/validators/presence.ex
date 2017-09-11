@@ -6,13 +6,13 @@ defmodule Validex.Validators.Presence do
 
   ## Examples
 
-      iex> Validex.Validators.Presence.validate(:name, true, "")
+      iex> Validex.Validators.Presence.validate(:presence, :name, true, "", [])
       [{:error, :name, :presence, "name is a required attribute but was absent"}]
 
-      iex> Validex.Validators.Presence.validate(:name, true, :__validex_missing__)
+      iex> Validex.Validators.Presence.validate(:presence, :name, true, :__validex_missing__, [])
       [{:error, :name, :presence, "name is a required attribute but was absent"}]
 
-      iex> Validex.Validators.Presence.validate(:name, false, "")
+      iex> Validex.Validators.Presence.validate(:presence, :name, false, "", [])
       []
 
       iex> Validex.Validators.Presence.expand([type: :string])
@@ -26,15 +26,15 @@ defmodule Validex.Validators.Presence do
   use Validex.RuleExpander
   @blank_values ["", :__validex_missing__]
 
-  def validate(_, false, _), do: []
+  def validate(_, _, false, _, _), do: []
 
-  def validate(attribute, spec, v) when
+  def validate(_, attribute, spec, v, _) when
     v in @blank_values and
     spec in [true, :__validex_default_presence] do
     [{:error, attribute, :presence, "#{attribute} is a required attribute but was absent"}]
   end
 
-  def validate(attribute, spec, _) when spec in [true, :__validex_default_presence] do
+  def validate(_, attribute, spec, _, _) when spec in [true, :__validex_default_presence] do
     [{:ok, attribute, :presence}]
   end
 

@@ -51,6 +51,17 @@ defmodule ValidexTest do
     assert [] = Validex.verify(%{}, [name: [presence: false]])
   end
 
+  test "unexpected properties are not errors by default" do
+    assert [] = Validex.errors(%{ hat: "nisse", name: "Simon" }, [name: :string])
+  end
+
+  test "unexpected properties are errors when using strict mode" do
+    assert [{:error, :hat, :strict, "hat is an unexpected attribute"}] = Validex.errors(%{ hat: "nisse", name: "Simon" }, [name: :string], [strict: true])
+    assert [{:error, [:hat, :kat], :strict, "kat is an unexpected attribute"}] = Validex.errors(%{ hat: %{ kat: "nisse", name: "Simon"} }, [hat: %{ name: :string }], [strict: true])
+    assert [_, {:error, [:hat, :kat], :strict, "kat is an unexpected attribute"}] = Validex.errors(%{ hat: %{ kat: "nisse", name: "Simon"} }, [hat: [one_of: [%{ name: :string }]]], [strict: true])
+    assert [] = Validex.errors(%{ hat: %{ kat: "nisse", name: "Simon"} }, [hat: [one_of: [%{ name: :string }, %{ name: :string, kat: :string }]]], [strict: true])
+  end
+
   test "can verify attributes nested inside maps" do
     assert [
       {:ok, :address, :presence},

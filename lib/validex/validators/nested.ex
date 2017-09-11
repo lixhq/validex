@@ -2,14 +2,15 @@ defmodule Validex.Validators.Nested do
   use Validex.Validator
   use Validex.RuleExpander
 
-  def validate(attribute, [rule], list) when is_list(list) do
+  def validate(_, attribute, [rule], list, options) when is_list(list) do
 
     list
     |> Enum.with_index()
     |> Enum.flat_map(fn {v, index} ->
       Validex.verify(
         %{ attribute => v },
-        Keyword.new([{ attribute, rule }])
+        Keyword.new([{ attribute, rule }]),
+        options
       )
       |> Enum.reject(&match?({:ok, _, :presence}, &1))
       |> Enum.map(&adjust_attribute_path(fn
@@ -20,12 +21,12 @@ defmodule Validex.Validators.Nested do
 
   end
 
-  def validate(_, _, value) when not is_map(value) do
+  def validate(_, _, _, value, _) when not is_map(value) do
     []
   end
 
-  def validate(attribute, map, value) when is_map(value) do
-    Validex.verify(value, Keyword.new(map))
+  def validate(_, attribute, map, value, options) when is_map(value) do
+    Validex.verify(value, Keyword.new(map), options)
     |> Enum.map(&adjust_attribute_path(fn
       attr when is_atom(attr) -> [attribute, attr]
       attrs when is_list(attrs) -> [attribute | attrs]

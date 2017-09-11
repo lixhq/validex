@@ -6,10 +6,10 @@ defmodule Validex.Validators.Exact do
 
   ## Examples
 
-      iex> Validex.Validators.Exact.validate(:name, "Simon", "Peter")
+      iex> Validex.Validators.Exact.validate(:exact, :name, "Simon", "Peter", [])
       [{:error, :name, :exact, "expected Simon but got Peter"}]
 
-      iex> Validex.Validators.Exact.validate(:my_integer, 5, 5)
+      iex> Validex.Validators.Exact.validate(:exact, :my_integer, 5, 5, [])
       [{:ok, :my_integer, :exact}]
   """
 
@@ -17,11 +17,11 @@ defmodule Validex.Validators.Exact do
   use Validex.RuleExpander
 
 
-  def validate(_, _, :__validex_missing__) do
+  def validate(_, _, _, :__validex_missing__, _) do
     []
   end
 
-  def validate(attribute, expected_value, actual_value) when is_binary(expected_value) or is_number(expected_value) do
+  def validate(_, attribute, expected_value, actual_value, _) when is_binary(expected_value) or is_number(expected_value) do
     if expected_value == actual_value do
       [{:ok, attribute, :exact}]
     else

@@ -4,10 +4,10 @@ defmodule Validex.Validators.Type do
 
   ## Examples
 
-      iex> Validex.Validators.Type.validate(:name, :string, "Simon")
+      iex> Validex.Validators.Type.validate(:type, :name, :string, "Simon", [])
       [{:ok, :name, :type}]
 
-      iex> Validex.Validators.Type.validate(:name, :string, 5)
+      iex> Validex.Validators.Type.validate(:type, :name, :string, 5, [])
       [{:error, :name, :type, "name should be string but was integer"}]
   """
   use Validex.Validator
@@ -40,9 +40,9 @@ defmodule Validex.Validators.Type do
     def type_of(_), do: :any
   end
 
-  def validate(_, _, :__validex_missing__), do: []
+  def validate(_, _, _, :__validex_missing__, _), do: []
 
-  def validate(attribute, expected_type, value) do
+  def validate(_, attribute, expected_type, value, _) do
     if Typer.valid_type?(value, expected_type) do
       [{:ok, attribute, :type}]
     else

@@ -39,12 +39,25 @@ defmodule Validex do
       value = Map.get(data, attribute, :__validex_missing__)
       Enum.flat_map(rules, fn {rule_kind, rule_spec} ->
         validator = find_validator(validators, rule_kind)
-        validator.validate(rule_kind, attribute, rule_spec, value)
+        validator.validate(rule_kind, attribute, rule_spec, value, config)
       end)
       {attribute, shorthand} when is_atom(shorthand) ->
         value = Map.get(data, attribute, :__validex_missing__)
-        Validex.Validators.Unknown.validate(shorthand, attribute, shorthand, value)
+        Validex.Validators.Unknown.validate(shorthand, attribute, shorthand, value, config)
     end)
+
+    result = if Keyword.get(config, :strict, false) do
+      schema_keys = Keyword.keys(expanded_schema) |> MapSet.new()
+
+      Map.keys(data)
+      |> MapSet.new()
+      |> MapSet.difference(schema_keys)
+      |> MapSet.to_list()
+      |> Enum.map(&{:error, &1, :strict, "#{&1} is an unexpected attribute"})
+      |> Enum.concat(result)
+    else
+      result
+    end
 
     result |> Enum.uniq() |> Enum.sort(
       fn a, b ->
