@@ -160,7 +160,7 @@ defmodule Validex do
     end
   end
 
-  def get_plugins(config) do
+  defp get_plugins(config) do
     expanders = Keyword.get(config, :expanders, []) ++ @default_expanders
     validators = Keyword.get(config, :validators, []) ++ @default_validators
     {validators, expanders}
