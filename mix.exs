@@ -31,7 +31,7 @@ defmodule Validex.Mixfile do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.14", only: :docs, runtime: false},
+      {:ex_doc, "~> 0.14", only: :dev, runtime: false},
       {:inch_ex, only: :docs},
       {:excoveralls, "~> 0.6", only: :test}
     ]
