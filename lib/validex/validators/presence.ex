@@ -28,9 +28,8 @@ defmodule Validex.Validators.Presence do
 
   def validate(_, _, false, _, _), do: []
 
-  def validate(_, attribute, spec, v, _) when
-    v in @blank_values and
-    spec in [true, :__validex_default_presence] do
+  def validate(_, attribute, spec, v, _)
+      when v in @blank_values and spec in [true, :__validex_default_presence] do
     [{:error, attribute, :presence, "#{attribute} is a required attribute but was absent"}]
   end
 
@@ -45,5 +44,4 @@ defmodule Validex.Validators.Presence do
       []
     end
   end
-
 end

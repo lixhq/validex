@@ -16,19 +16,21 @@ defmodule Validex.Validators.Exact do
   use Validex.Validator
   use Validex.RuleExpander
 
-
   def validate(_, _, _, :__validex_missing__, _) do
     []
   end
 
-  def validate(_, attribute, expected_value, actual_value, _) when is_binary(expected_value) or is_number(expected_value) do
+  def validate(_, attribute, expected_value, actual_value, _)
+      when is_binary(expected_value) or is_number(expected_value) do
     if expected_value == actual_value do
       [{:ok, attribute, :exact}]
     else
-      printable_value = case actual_value do
-        actual_value when is_list(actual_value) or is_map(actual_value) -> inspect(actual_value)
-        _ -> actual_value
-      end
+      printable_value =
+        case actual_value do
+          actual_value when is_list(actual_value) or is_map(actual_value) -> inspect(actual_value)
+          _ -> actual_value
+        end
+
       [{:error, attribute, :exact, "expected #{expected_value} but got #{printable_value}"}]
     end
   end
@@ -37,4 +39,3 @@ defmodule Validex.Validators.Exact do
     [exact: exact_value]
   end
 end
-

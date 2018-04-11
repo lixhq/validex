@@ -1,6 +1,18 @@
 defmodule Validex do
-  @default_expanders [Validex.Validators.Exact, Validex.Validators.Nested, Validex.Validators.Presence, Validex.Validators.Type]
-  @default_validators [Validex.Validators.Exact, Validex.Validators.Nested, Validex.Validators.OneOf, Validex.Validators.Presence, Validex.Validators.Type, Validex.Validators.Unknown]
+  @default_expanders [
+    Validex.Validators.Exact,
+    Validex.Validators.Nested,
+    Validex.Validators.Presence,
+    Validex.Validators.Type
+  ]
+  @default_validators [
+    Validex.Validators.Exact,
+    Validex.Validators.Nested,
+    Validex.Validators.OneOf,
+    Validex.Validators.Presence,
+    Validex.Validators.Type,
+    Validex.Validators.Unknown
+  ]
 
   @moduledoc """
   Validex is a library for doing data validation in Elixir. Using a schema you
@@ -31,46 +43,52 @@ defmodule Validex do
   def verify(data, schema, config \\ []) when is_map(data) and is_list(schema) do
     {validators, expanders} = get_plugins(config)
 
-    expanded_schema = Enum.map(schema, fn {attribute, spec} ->
-      {attribute, expand_rules(expanders, spec)}
-    end)
-
-    result = Enum.flat_map(expanded_schema, fn {attribute, rules} when is_list(rules) ->
-      value = Map.get(data, attribute, :__validex_missing__)
-      Enum.flat_map(rules, fn {rule_kind, rule_spec} ->
-        validator = find_validator(validators, rule_kind)
-        validator.validate(rule_kind, attribute, rule_spec, value, config)
+    expanded_schema =
+      Enum.map(schema, fn {attribute, spec} ->
+        {attribute, expand_rules(expanders, spec)}
       end)
-      {attribute, shorthand} when is_atom(shorthand) ->
-        value = Map.get(data, attribute, :__validex_missing__)
-        Validex.Validators.Unknown.validate(shorthand, attribute, shorthand, value, config)
-    end)
 
-    result = if Keyword.get(config, :strict, false) do
-      schema_keys = Keyword.keys(expanded_schema) |> MapSet.new()
+    result =
+      Enum.flat_map(expanded_schema, fn
+        {attribute, rules} when is_list(rules) ->
+          value = Map.get(data, attribute, :__validex_missing__)
 
-      Map.keys(data)
-      |> MapSet.new()
-      |> MapSet.difference(schema_keys)
-      |> MapSet.to_list()
-      |> Enum.map(&{:error, &1, :strict, "#{&1} is an unexpected attribute"})
-      |> Enum.concat(result)
-    else
-      result
-    end
+          Enum.flat_map(rules, fn {rule_kind, rule_spec} ->
+            validator = find_validator(validators, rule_kind)
+            validator.validate(rule_kind, attribute, rule_spec, value, config)
+          end)
 
-    result |> Enum.uniq() |> Enum.sort(
-      fn a, b ->
-        ak = elem(a, 1)
-        bk = elem(b, 1)
-
-        case {ak, bk} do
-          {ak, bk} when is_atom(ak) and is_list(bk) -> {[ak], elem(a, 2)} <= {bk, elem(b, 2)}
-          {ak, bk} when is_list(ak) and is_atom(bk) -> {ak, elem(a, 2)} <= {[bk], elem(b, 2)}
-          {ak, bk} -> {ak, elem(a, 2)} <= {bk, elem(b, 2)}
-        end
-
+        {attribute, shorthand} when is_atom(shorthand) ->
+          value = Map.get(data, attribute, :__validex_missing__)
+          Validex.Validators.Unknown.validate(shorthand, attribute, shorthand, value, config)
       end)
+
+    result =
+      if Keyword.get(config, :strict, false) do
+        schema_keys = Keyword.keys(expanded_schema) |> MapSet.new()
+
+        Map.keys(data)
+        |> MapSet.new()
+        |> MapSet.difference(schema_keys)
+        |> MapSet.to_list()
+        |> Enum.map(&{:error, &1, :strict, "#{&1} is an unexpected attribute"})
+        |> Enum.concat(result)
+      else
+        result
+      end
+
+    result
+    |> Enum.uniq()
+    |> Enum.sort(fn a, b ->
+      ak = elem(a, 1)
+      bk = elem(b, 1)
+
+      case {ak, bk} do
+        {ak, bk} when is_atom(ak) and is_list(bk) -> {[ak], elem(a, 2)} <= {bk, elem(b, 2)}
+        {ak, bk} when is_list(ak) and is_atom(bk) -> {ak, elem(a, 2)} <= {[bk], elem(b, 2)}
+        {ak, bk} -> {ak, elem(a, 2)} <= {bk, elem(b, 2)}
+      end
+    end)
   end
 
   @doc """
@@ -128,10 +146,12 @@ defmodule Validex do
   end
 
   defp expand_rules(expanders, spec) do
-    rules = expanders
-            |> Enum.map(&(&1.expand(spec)))
-            |> Enum.filter(&(&1 != spec))
-            |> Enum.concat |> Enum.uniq
+    rules =
+      expanders
+      |> Enum.map(& &1.expand(spec))
+      |> Enum.filter(&(&1 != spec))
+      |> Enum.concat()
+      |> Enum.uniq()
 
     if rules == [] do
       spec
@@ -145,6 +165,4 @@ defmodule Validex do
     validators = Keyword.get(config, :validators, []) ++ @default_validators
     {validators, expanders}
   end
-
 end
-

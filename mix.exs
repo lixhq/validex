@@ -4,18 +4,25 @@ defmodule Validex.Mixfile do
   @version "0.1.0"
 
   def project do
-    [app: :validex,
-     version: @version,
-     elixir: "~> 1.4",
-     elixirc_paths: elixirc_paths(Mix.env),
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     description: "A data validation library for Elixir",
-     deps: deps(),
-     package: package(),
-     docs: docs(),
-     test_coverage: [tool: ExCoveralls],
-     preferred_cli_env: ["coveralls": :test, "coveralls.detail": :test, "coveralls.post": :test, "coveralls.html": :test]]
+    [
+      app: :validex,
+      version: @version,
+      elixir: "~> 1.4",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      description: "A data validation library for Elixir",
+      deps: deps(),
+      package: package(),
+      docs: docs(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
+    ]
   end
 
   def application do
@@ -32,9 +39,9 @@ defmodule Validex.Mixfile do
 
   defp package do
     [
-     maintainers: ["Simon Stender Boisen"],
-     licenses: ["MIT License"],
-     links: %{ github: "https://github.com/lixhq/validex" }
+      maintainers: ["Simon Stender Boisen"],
+      licenses: ["MIT License"],
+      links: %{github: "https://github.com/lixhq/validex"}
     ]
   end
 
@@ -48,5 +55,5 @@ defmodule Validex.Mixfile do
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
+  defp elixirc_paths(_), do: ["lib"]
 end

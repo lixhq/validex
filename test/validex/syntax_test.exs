@@ -8,8 +8,10 @@ defmodule Validex.SyntaxTest do
 
     test "can make map optional" do
       assert [
-        presence: false, type: :map, nested: %{ name: :string }
-      ] = Validex.Syntax.optional(%{ name: :string })
+               presence: false,
+               type: :map,
+               nested: %{name: :string}
+             ] = Validex.Syntax.optional(%{name: :string})
     end
   end
 
@@ -20,10 +22,8 @@ defmodule Validex.SyntaxTest do
 
     test "can make one_of maps" do
       assert [
-        one_of: [%{ name: :string }, "TWO"]
-      ] = Validex.Syntax.one_of([%{ name: :string }, "TWO"])
+               one_of: [%{name: :string}, "TWO"]
+             ] = Validex.Syntax.one_of([%{name: :string}, "TWO"])
     end
   end
-
 end
-

@@ -45,4 +45,3 @@ defmodule Validex.RuleExpander do
     end
   end
 end
-
