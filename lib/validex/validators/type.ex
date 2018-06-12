@@ -14,13 +14,14 @@ defmodule Validex.Validators.Type do
   use Validex.RuleExpander
 
   defmodule Typer do
-    types = ~w[function nil integer list map float atom tuple pid port reference]
+    types = ~w[function nil integer list map float atom tuple pid port reference boolean]
 
     def valid_type?(:__validex_missing__, _), do: true
     def valid_type?(v, :string), do: String.valid?(v)
     def valid_type?(v, :number) when is_float(v) or is_integer(v), do: true
     def valid_type?(%{__struct__: module}, module), do: true
     def valid_type?(_, :any), do: true
+    def valid_type?(v, :atom) when is_boolean(v), do: false
 
     for type <- types do
       def valid_type?(v, unquote(:"#{type}")) when unquote(:"is_#{type}")(v), do: true

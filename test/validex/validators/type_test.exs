@@ -2,8 +2,8 @@ defmodule TypeTest do
   use ExUnit.Case, async: true
 
   doctest Validex.Validators.Type
-  @types [:string, :integer, :float, :number, :number, :atom, :list, :map]
-  @values ["hello", 5, 5.6, 5, 5.6, :bla, [], %{}]
+  @types [:string, :integer, :float, :number, :number, :atom, :list, :map, :boolean]
+  @values ["hello", 5, 5.6, 5, 5.6, :bla, [], %{}, true]
 
   @valid_cases Enum.zip(@types, @values) ++ Enum.map(@values, &{:any, &1})
 
