@@ -21,7 +21,7 @@ defmodule Validex.Validators.Exact do
   end
 
   def validate(_, attribute, expected_value, actual_value, _)
-      when is_binary(expected_value) or is_number(expected_value) do
+      when is_binary(expected_value) or is_number(expected_value) or is_atom(expected_value) do
     if expected_value == actual_value do
       [{:ok, attribute, :exact}]
     else

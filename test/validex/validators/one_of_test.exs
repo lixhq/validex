@@ -65,6 +65,18 @@ defmodule Validex.Validators.OneOfTest do
                {:ok, [:prop, :name], :presence},
                {:ok, [:prop, :name], :type}
              ] = Validex.verify(%{prop: %{name: "Simon"}}, schema)
+
+      schema = [prop: [one_of: [%{name: [exact: :uni_login], id: :string}]]]
+
+      assert [
+               {:ok, :prop, :one_of},
+               {:ok, :prop, :presence},
+               {:ok, :prop, :type},
+               {:ok, [:prop, :id], :presence},
+               {:ok, [:prop, :id], :type},
+               {:ok, [:prop, :name], :exact},
+               {:ok, [:prop, :name], :presence}
+             ] = Validex.verify(%{prop: %{name: :uni_login, id: "Simon"}}, schema)
     end
   end
 end
