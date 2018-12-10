@@ -1,6 +1,7 @@
 defmodule Validex.Validators.OneOf do
   use Validex.Validator
-  require Logger
+
+  def validate(_, _attribute, _types, :__validex_missing__, _options), do: []
 
   def validate(_, attribute, types, value, options) when is_list(types) do
     result =

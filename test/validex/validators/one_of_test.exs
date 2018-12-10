@@ -78,5 +78,29 @@ defmodule Validex.Validators.OneOfTest do
                {:ok, [:prop, :name], :presence}
              ] = Validex.verify(%{prop: %{name: :uni_login, id: "Simon"}}, schema)
     end
+
+    test "works with presence false" do
+      schema = [
+        prop: [one_of: ["DKK", %{name: :string}]],
+        prop2: [one_of: ["DKK", %{name: :string}], presence: false],
+      ]
+
+      assert [
+               {:ok, :prop, :one_of},
+               {:ok, :prop, :presence},
+               {:ok, :prop, :type},
+               {:ok, [:prop, :name], :presence},
+               {:ok, [:prop, :name], :type}
+             ] = Validex.verify(%{prop: %{name: "Simon"}}, schema)
+
+      assert [
+               {:error, :prop, :presence, _},
+               {:ok, :prop2, :one_of},
+               {:ok, :prop2, :presence},
+               {:ok, :prop2, :type},
+               {:ok, [:prop2, :name], :presence},
+               {:ok, [:prop2, :name], :type}
+             ] = Validex.verify(%{prop2: %{name: "Simon"}}, schema)
+    end
   end
 end
