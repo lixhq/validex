@@ -20,7 +20,7 @@ defmodule Validex.Validator do
       @rule_kind Module.split(__MODULE__)
                  |> List.last()
                  |> String.split(~r{[A-Z]}, include_captures: true, trim: true)
-                 |> Enum.chunk(2)
+                 |> Enum.chunk_every(2)
                  |> Enum.map(&(Enum.join(&1) |> String.downcase()))
                  |> Enum.join("_")
                  |> String.to_atom()
