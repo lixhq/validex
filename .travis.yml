@@ -4,14 +4,16 @@ dist: trusty
 language: elixir
 
 elixir:
-  - 1.4
+  - 1.5
 
 otp_release: 18.3
 
 matrix:
   include:
-    - elixir: 1.4
+    - elixir: 1.5
       otp_release: 19.2
+    - elixir: 1.8
+      otp_release: 21.0
 
 env:
   - MIX_ENV=test
